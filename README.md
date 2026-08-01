@@ -1,0 +1,2 @@
+# GenAIMiniProject
+GenAI Mini Project
