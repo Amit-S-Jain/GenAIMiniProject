@@ -9,74 +9,80 @@ import re
 # resume_response = resume_llm_call.resume_llmCall(file_path)
 class DBInsert:
     def extract_json(self, llm_response: str) -> dict:
+        """
+        Extract JSON object from LLM response.
+        """
 
-        blocks = re.findall(
-            r"```(?:json)?\s*(.*?)\s*```",
-            llm_response,
-            re.DOTALL
-        )
+        # Remove markdown code blocks if present
+        match = re.search(r"```(?:json)?\s*(\{.*\})\s*```", llm_response, re.DOTALL)
 
-        for block in blocks:
-            try:
-                data = json.loads(block)
+        if match:
+            json_string = match.group(1)
+        else:
+            # Fallback: find first { and last }
+            start = llm_response.find("{")
+            end = llm_response.rfind("}")
 
-                if isinstance(data, dict) and "name" in data:
-                    return data
+            if start == -1 or end == -1:
+                raise ValueError("No JSON object found.")
 
-            except json.JSONDecodeError:
-                continue
+            json_string = llm_response[start:end + 1]
 
-        raise ValueError("Candidate JSON not found.")    
+        return json.loads(json_string)
 
-    def normalize_candidate(self, data: dict) -> CandidateProfile:
+    def normalize_candidate(self, data):
 
-        data = data.copy()
+        list_fields = [
+            "preferred_roles",
+            "preferred_locations",
+            "skills",
+            "languages_know",
+            "certifications",
+            "education",
+            "current_company"
+        ]
 
-        data.pop("id", "NULL")
+        for field in list_fields:
 
-        skills = []
+            value = data.get(field)
 
-        for x in data.get("skills", []):
-            if isinstance(x, dict):
-                print(x)  # Debug
-                skills.append(x.get("item"))   # won't raise KeyError
-            else:
-                skills.append(x)
+            if isinstance(value, list):
 
-        data["skills"] = [s for s in skills if s]
+                converted = []
 
-        certifications = []
-        for x in data.get("certifications", []):
-            if isinstance(x, dict):
-                print(x)  # Debug
-                certifications.append(x.get("item"))   # won't raise KeyError
-            else:
-                certifications.append(x)
+                for item in value:
 
-        data["certifications"] = [s for s in certifications if s]
+                    if isinstance(item, dict):
+                        converted.append(
+                            ", ".join(str(v) for v in item.values() if v)
+                        )
+                    else:
+                        converted.append(str(item))
 
-        return CandidateProfile(**data)
+                data[field] = ", ".join(converted)
 
+        # Convert experience values
 
+        for field in ["total_experience", "relevant_experience"]:
 
+            value = data.get(field)
 
+            if isinstance(value, str):
 
+                match = re.search(r"\d+(\.\d+)?", value)
 
+                if match:
+                    data[field] = float(match.group())
+                else:
+                    data[field] = None
 
+        # Convert "null" string into None
 
-    
-    # # candidate = CandidateProfile(
-    # #     name="Amit Jain",
-    # #     email="amit@gmail.com",
-    # #     phone="9876543210",
-    # #     total_experience=6.5,
-    # #     current_company="ABC",
-    # #     skills=["Python", "FastAPI", "Azure"],
-    # #     preferred_locations=["Pune", "Remote"]
-    # # )
+        for key, value in data.items():
 
-    def DBinsertOriginal(self, data):
-        candidate = self.normalize_candidate(data)
-        with Session(engine) as session:
-            session.add(candidate)
-            session.commit()
+            if isinstance(value, str):
+
+                if value.strip().lower() == "null":
+                    data[key] = None
+
+        return data
