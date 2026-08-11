@@ -4,7 +4,7 @@ from AIEngine.resume_parser.localLLMforResume import resume_llm_call
 # from AIEngine.DBModels.deleteCandidate import DeleteCandidate
 
 class MainClass:
-    def parse_resume(self, file_path):
+    def parse_resume(file_path):
         # resume = input("Provide your resume path : ")
         # file_path = "C:/Users/amits/Desktop/GenAi/NaukriAgent/DjangoProject/AIEngine/resume/"+resume+".pdf"
         print(file_path)
