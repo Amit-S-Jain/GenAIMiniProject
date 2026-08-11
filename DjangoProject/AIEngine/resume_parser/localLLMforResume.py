@@ -2,9 +2,10 @@ from ollama import chat
 # from resume_reader import resume_text
 from .resume_parser_doclink import resume_reader_txt
 from datetime import datetime
-from dataStr.candidate_profile import CandidateProfile
-from DBModels.db_schema import DBSchema
-from resume_parser.resume_parser_doclink import resume_reader_txt
+from AIEngine.dataStr.candidate_profile import CandidateProfile
+from AIEngine.DBModels.db_schema import DBSchema
+from AIEngine.resume_parser.resume_parser_doclink import resume_reader_txt
+
 
 class resume_llm_call:
     def resume_llmCall(file_path):

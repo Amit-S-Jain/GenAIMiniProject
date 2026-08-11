@@ -1,9 +1,14 @@
-from sqlmodel import Session
+from sqlmodel import Session, create_engine
 from .db_creation import engine
 from .db_creation import CandidateProfile
-from resume_parser.localLLMforResume import resume_llm_call
+from AIEngine.resume_parser.localLLMforResume import resume_llm_call
 import json
 import re
+from sqlalchemy import inspect
+# from DjangoProject.candidates.models import Candidates as DjangoCandidate
+# from DjangoProject.candidates.models import Candidates
+from sqlalchemy.orm import Session
+
 
 # file_path = "C:/Users/amits/Desktop/GenAi/NaukriAI/resume/resume2.pdf"
 # resume_response = resume_llm_call.resume_llmCall(file_path)
@@ -86,3 +91,36 @@ class DBInsert:
                     data[key] = None
 
         return data
+
+    def DBinsertOriginal(self, data):
+                
+        DATABASE_URL = "sqlite:///../db.sqlite3"
+
+        engine = create_engine(
+            DATABASE_URL,
+            echo=True
+        )
+
+    def DBinsertOriginal(self, data):
+            __tablename__ = "candidates_candidates"
+            # with Session(engine) as session:
+            #     session.add(data)
+            #     session.commit()
+
+            #     print("Engine inspect")
+            #     inspector = inspect(engine)
+            #     print(inspector.get_table_names())
+
+            django_obj = DjangoCandidate.objects.get(id=1)
+
+            # Convert Django model → dict
+            data_dict = django_obj.__dict__
+
+            # Remove Django internal fields
+            data_dict.pop("_state", None)
+
+            # Convert dict → SQLAlchemy model
+            sqlalchemy_candidate = data(**data_dict)
+
+            session.add(sqlalchemy_candidate)
+            session.commit()

@@ -58,23 +58,6 @@ class DBInsert:
         return CandidateProfile(**data)
 
 
-
-
-
-
-
-
-    
-    # # candidate = CandidateProfile(
-    # #     name="Amit Jain",
-    # #     email="amit@gmail.com",
-    # #     phone="9876543210",
-    # #     total_experience=6.5,
-    # #     current_company="ABC",
-    # #     skills=["Python", "FastAPI", "Azure"],
-    # #     preferred_locations=["Pune", "Remote"]
-    # # )
-
     def DBinsertOriginal(self, data):
         candidate = self.normalize_candidate(data)
         with Session(engine) as session:

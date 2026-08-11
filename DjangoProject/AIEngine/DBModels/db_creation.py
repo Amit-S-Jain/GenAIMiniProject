@@ -4,10 +4,10 @@ from sqlmodel import SQLModel, Field
 from sqlalchemy import Column
 from sqlalchemy.types import JSON
 from datetime import datetime
-from  dataStr.candidate_profile import CandidateProfile
+from AIEngine.dataStr.candidate_profile import CandidateProfile
 # models.candidate_profile import CandidateProfile
-from dataStr.job_profile import JobProfile
-from dataStr.job_match import JobMatch
+from AIEngine.dataStr.job_profile import JobProfile
+from AIEngine.dataStr.job_match import JobMatch
 
 DATABASE_URL = "sqlite:///../db.sqlite3"
 
